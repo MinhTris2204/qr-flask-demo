@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Nội dung QR</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #e3f2fd; }
+        .box { background: #fff; padding: 30px 28px; margin: 48px auto; border-radius: 20px; max-width: 390px; box-shadow: 0 3px 14px rgba(0,0,0,0.13); text-align: center;}
+        .img { max-width: 100%; margin-bottom: 15px; border-radius: 11px;}
+        .text { background: #f2f8fc; border-radius: 9px; padding: 10px 15px; display: inline-block; margin-top: 12px; font-size: 1.06em;}
+    </style>
+</head>
+<body>
+<div class="box">
+    {% if img_url %}
+    <img src="{{ img_url }}" class="img">
+    {% endif %}
+    <div class="text">{{ text }}</div>
+</div>
+</body>
+</html>

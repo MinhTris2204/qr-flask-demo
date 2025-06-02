@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Tạo QR Code kèm ảnh</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f7fbfc; }
+        .container { background: #fff; padding: 28px 36px; margin: 60px auto; border-radius: 20px; max-width: 410px; box-shadow: 0 3px 16px rgba(0,0,0,0.12); text-align: center;}
+        h2 { color: #2980b9; }
+        input[type=text], input[type=file] { width: 100%; margin-bottom: 14px; padding: 8px; border-radius: 9px; border: 1px solid #c4d3e6; }
+        button { background: #2980b9; color: #fff; border: none; border-radius: 10px; padding: 9px 18px; cursor: pointer; font-weight: 600;}
+        .qr { margin-top: 22px; }
+        .link { word-break: break-all; font-size: 0.98em; color: #333; margin-top: 6px;}
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Tạo QR chứa ảnh & văn bản</h2>
+    <form method="POST" enctype="multipart/form-data">
+        <input type="text" name="data" placeholder="Nhập nội dung..." required>
+        <input type="file" name="img" accept="image/*">
+        <button type="submit">Tạo QR Code</button>
+    </form>
+    {% if img_data %}
+    <div class="qr">
+        <img src="data:image/png;base64,{{ img_data }}" width="220"><br>
+        <div class="link">Hoặc mở: <a href="{{ url }}" target="_blank">{{ url }}</a></div>
+    </div>
+    {% endif %}
+</div>
+</body>
+</html>
