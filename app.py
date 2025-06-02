@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, url_for
 import qrcode
 import io
 import base64
@@ -17,22 +17,20 @@ def index():
     qr_img_data = None
     url = ""
     if request.method == "POST":
-        text = request.form["data"]
-        file = request.files.get("img")   # <-- ĐÃ SỬA DÒNG NÀY
-        filename = ""
+        title = request.form.get("title", "")
+        text = request.form.get("data", "")
+        files = request.files.getlist("img")
+        filenames = []
 
-        if file and file.filename:
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            img_url = url_for('static', filename=f'uploads/{filename}', _external=True)
-        else:
-            img_url = ""
-            filename = ""
+        for file in files:
+            if file and file.filename:
+                filename = secure_filename(file.filename)
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                filenames.append(filename)
 
-        # Tạo link dẫn tới trang view
-        view_link = url_for("view_content", text=text, img=filename, _external=True)
+        img_param = ",".join(filenames)
+        view_link = url_for("view_content", title=title, text=text, img=img_param, _external=True)
 
-        # Tạo QR code chứa link đó
         qr = qrcode.make(view_link)
         buf = io.BytesIO()
         qr.save(buf, format='PNG')
@@ -43,10 +41,15 @@ def index():
 
 @app.route("/view")
 def view_content():
+    title = request.args.get("title", "")
     text = request.args.get("text", "")
-    img = request.args.get("img", "")
-    img_url = url_for('static', filename=f'uploads/{img}') if img else ""
-    return render_template("view.html", text=text, img_url=img_url)
+    img_param = request.args.get("img", "")
+    img_urls = []
+    if img_param:
+        for fname in img_param.split(","):
+            if fname.strip():
+                img_urls.append(url_for('static', filename=f'uploads/{fname}'))
+    return render_template("view.html", text=text, img_urls=img_urls, title=title)
 
 if __name__ == "__main__":
     app.run(debug=True)

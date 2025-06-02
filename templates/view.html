@@ -1,21 +1,248 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <title>Nội dung QR</title>
-    <style>
-        body { font-family: Arial, sans-serif; background: #e3f2fd; }
-        .box { background: #fff; padding: 30px 28px; margin: 48px auto; border-radius: 20px; max-width: 390px; box-shadow: 0 3px 14px rgba(0,0,0,0.13); text-align: center;}
-        .img { max-width: 100%; margin-bottom: 15px; border-radius: 11px;}
-        .text { background: #f2f8fc; border-radius: 9px; padding: 10px 15px; display: inline-block; margin-top: 12px; font-size: 1.06em;}
-    </style>
+<meta charset="UTF-8" />
+<title>Nội dung QR với hiệu ứng tuyết rơi</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&display=swap" rel="stylesheet" />
+<style>
+  body {
+    font-family: 'Inter', Arial, sans-serif;
+    margin: 0; min-height: 100vh;
+    background: linear-gradient(120deg, #b6eaff 0%, #e3f2fd 100%);
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Hộp nội dung chính */
+  .box {
+    position: relative;
+    background: #fff;
+    padding: 36px 25px 32px 25px;
+    margin: 70px auto;
+    border-radius: 28px;
+    max-width: 480px;
+    box-shadow: 0 4px 22px rgba(40,116,166,0.22);
+    text-align: center;
+    z-index: 10;
+    border: 3px solid transparent;
+    background-clip: padding-box;
+    animation: slideInFromBottom 0.8s cubic-bezier(.46,.03,.52,.96);
+  }
+
+  .imgs-flex {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 14px;
+  }
+  .img {
+    max-width: 110px;
+    max-height: 110px;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(40,116,166,0.13);
+    object-fit: cover;
+    opacity: 0;
+    transform: scale(0.75);
+    animation: fadeZoomIn 0.6s forwards;
+  }
+  .img:nth-child(1) { animation-delay: 0.05s;}
+  .img:nth-child(2) { animation-delay: 0.19s;}
+  .img:nth-child(3) { animation-delay: 0.33s;}
+  .img:nth-child(4) { animation-delay: 0.47s;}
+  .img:nth-child(5) { animation-delay: 0.61s;}
+
+  .qr-title {
+    font-size: 1.4em;
+    font-weight: 700;
+    color: #2874A6;
+    margin-bottom: 14px;
+    opacity: 0;
+    animation: fadeIn 1s 0.6s forwards;
+    transform: translateY(18px);
+  }
+  .text {
+    background: #f2f8fc;
+    border-radius: 14px;
+    padding: 14px 18px;
+    display: inline-block;
+    margin-top: 12px;
+    font-size: 1.12em;
+    color: #353535;
+    word-break: break-word;
+    opacity: 0;
+    transform: translateY(28px);
+    animation: fadeUpText 0.75s 0.85s forwards;
+    min-width: 200px;
+    max-width: 100%;
+  }
+  .actions {
+    display: flex;
+    justify-content: center;
+    gap: 18px;
+    margin-top: 28px;
+    animation: fadeIn 1.1s 1s forwards;
+    opacity: 0;
+    flex-wrap: wrap;
+  }
+  .btn {
+    background: linear-gradient(90deg,#2980b9 60%,#3baee7 100%);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 10px 22px;
+    font-weight: 600;
+    font-size: 1.04em;
+    cursor: pointer;
+    box-shadow: 0 3px 9px rgba(40,116,166,0.12);
+    transition: background 0.2s, transform 0.18s;
+    margin-top: 8px;
+    will-change: transform;
+  }
+  .btn:active {
+    transform: scale(0.95);
+    box-shadow: 0 1px 4px rgba(40,116,166,0.15);
+  }
+  .btn:hover {
+    background: linear-gradient(90deg,#226090 60%,#349ed0 100%);
+    transform: translateY(-3px) scale(1.07);
+    animation: buttonShake 0.15s ease-in-out 2;
+  }
+
+  @keyframes fadeZoomIn {
+    from { opacity:0; transform: scale(0.75);}
+    70% {opacity:1; transform:scale(1.09);}
+    to { opacity:1; transform: scale(1);}
+  }
+  @keyframes slideInFromBottom {
+    from {opacity: 0; transform: translateY(90px);}
+    to   {opacity: 1; transform: translateY(0);}
+  }
+  @keyframes fadeIn {
+    from { opacity: 0;}
+    to   { opacity: 1;}
+  }
+  @keyframes fadeUpText {
+    from {opacity:0;transform:translateY(28px);}
+    80% {opacity:1;transform:translateY(-3px);}
+    to {opacity:1;transform:translateY(0);}
+  }
+  @keyframes buttonShake {
+    0%, 100% { transform: translateX(0);}
+    25% { transform: translateX(-3px);}
+    75% { transform: translateX(3px);}
+  }
+
+  .msg {
+    background: #d0f5d8;
+    color: #237849;
+    padding: 7px 18px;
+    border-radius: 8px;
+    margin-top: 12px;
+    margin-bottom: -10px;
+    font-size: 1em;
+    display: none;
+    animation: fadeIn 0.9s;
+  }
+
+  /* Tuyết rơi */
+  #snowflakeContainer {
+    pointer-events: none;
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    z-index: 9999;
+    overflow: hidden;
+  }
+  .snowflake {
+    position: absolute;
+    top: -10px;
+    background: white;
+    border-radius: 50%;
+    opacity: 0.8;
+    filter: drop-shadow(0 0 1px white);
+    animation-name: fall;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+  }
+
+  @keyframes fall {
+    0% {transform: translateY(0) translateX(0);}
+    100% {transform: translateY(100vh) translateX(20px);}
+  }
+</style>
 </head>
 <body>
+
 <div class="box">
-    {% if img_url %}
-    <img src="{{ img_url }}" class="img">
-    {% endif %}
-    <div class="text">{{ text }}</div>
+  {% if img_urls %}
+  <div class="imgs-flex">
+    {% for img_url in img_urls %}
+      <img src="{{ img_url }}" class="img" alt="Ảnh từ QR code" />
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% if title %}
+  <div class="qr-title">{{ title }}</div>
+  {% endif %}
+  <div class="text" id="qrText">{{ text }}</div>
+  <div class="actions">
+    <button class="btn" onclick="copyText()">Copy nội dung</button>
+    <button class="btn" onclick="shareContent()">Chia sẻ</button>
+  </div>
+  <div class="msg" id="msg">Đã copy!</div>
 </div>
+
+<div id="snowflakeContainer"></div>
+
+<script>
+  function copyText() {
+    const text = document.getElementById("qrText").innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      showMsg("Đã copy nội dung!");
+    });
+  }
+
+  function shareContent() {
+    const text = document.getElementById("qrText").innerText;
+    if (navigator.share) {
+      navigator.share({
+        title: document.title,
+        text: text,
+        url: window.location.href
+      });
+    } else {
+      showMsg("Thiết bị không hỗ trợ chia sẻ trực tiếp.");
+    }
+  }
+
+  function showMsg(msg) {
+    const msgDiv = document.getElementById("msg");
+    msgDiv.innerText = msg;
+    msgDiv.style.display = 'block';
+    setTimeout(() => { msgDiv.style.display = 'none'; }, 1300);
+  }
+
+  // Tạo hiệu ứng tuyết rơi
+  const container = document.getElementById('snowflakeContainer');
+  const maxSnowflakes = 40;
+
+  function randomRange(min, max) {
+    return Math.random() * (max - min) + min;
+  }
+
+  for(let i = 0; i < maxSnowflakes; i++) {
+    const snowflake = document.createElement('div');
+    snowflake.classList.add('snowflake');
+    const size = randomRange(6, 14);
+    snowflake.style.width = size + 'px';
+    snowflake.style.height = size + 'px';
+    snowflake.style.left = randomRange(0, window.innerWidth) + 'px';
+    snowflake.style.animationDuration = randomRange(5, 12) + 's';
+    snowflake.style.animationDelay = (Math.random() * 12) + 's';
+    container.appendChild(snowflake);
+  }
+</script>
+
 </body>
 </html>
